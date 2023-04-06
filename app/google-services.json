@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "422719585728",
+    "project_id": "agora-calling-5ea20",
+    "storage_bucket": "agora-calling-5ea20.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:422719585728:android:cfea19da44ab82378a5c25",
+        "android_client_info": {
+          "package_name": "com.example.test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "422719585728-m206r1sv7fdvkreuu4mdc6f10e4jkarj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.test",
+            "certificate_hash": "12478a998f07c23b0f021bdcb80f59d9c3f92658"
+          }
+        },
+        {
+          "client_id": "422719585728-7a4qh2sirgln1bqqni9n21mnh3jq2152.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkMmfmkbxdVBJVUyIvtn6-YXd7Yi1BsgM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "422719585728-7a4qh2sirgln1bqqni9n21mnh3jq2152.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

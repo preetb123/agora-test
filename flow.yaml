@@ -1,0 +1,7 @@
+appId: com.example.test
+---
+- launchApp
+- tapOn: "More options"
+- tapOn: "Settings"
+- tapOn: "BUTTON FOR TESTING"
+- assertVisible: "Button was clicked"
