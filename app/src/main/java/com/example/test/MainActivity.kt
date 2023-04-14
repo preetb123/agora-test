@@ -2,13 +2,15 @@ package com.example.test
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
+import android.text.InputType
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -25,10 +27,10 @@ class MainActivity : AppCompatActivity() {
     private val channelName = "sony-channel1"
 
     // Fill the temp token generated on Agora Console.
-    private val token = "007eJxTYCjX/yXZnfrqn9W6A1fXnJRQWt6ycELwQeW/feIzb6fbr1ZVYLBMsjBKNEk0N7RMNTJJSzWyMEhLNTM1Sks1MEszSjNLkpHRS2kIZGRQ2O7BwAiFID4vQ3F+XqVuckZiXl5qjiEDAwDKeCK2"
+    private val token = "007eJxTYHjfYhryMF5BPj6wtf9a6UsN3R/iUm5nJurJXNJj3hr0ukSBwTLJwijRJNHc0DLVyCQt1cjCIC3VzNQoLdXALM0ozSzp7EOLlIZARoYDS2+wMjIwMrAAMYjPBCaZwSQLmORlKM7Pq9RNzkjMy0vNMWRgAACTNCVG"
 
     // An integer that identifies the local user.
-    private val uid = 1234
+    private var uid: Int = 0;
 
     // Track the status of your connection
     private var isJoined = false
@@ -72,6 +74,23 @@ class MainActivity : AppCompatActivity() {
                 binding.muteUnmuteCheck.setText("Mute")
             }
         }
+
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("Enter user id")
+        val input = EditText(this)
+
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        builder.setView(input)
+
+        // Set up the buttons
+        // Set up the buttons
+        builder.setPositiveButton(
+            "OK"
+        ) { dialog, which -> uid = Integer.parseInt(input.text.toString()) }
+
+        builder.create().show()
     }
 
     override fun onDestroy() {
@@ -100,7 +119,11 @@ class MainActivity : AppCompatActivity() {
     private val mRtcEventHandler: IRtcEngineEventHandler = object : IRtcEngineEventHandler() {
         // Listen for the remote user joining the channel.
         override fun onUserJoined(uid: Int, elapsed: Int) {
-            runOnUiThread { infoText!!.text = "Remote user joined: $uid" }
+
+            runOnUiThread {
+                infoText!!.text = "Remote user joined: $uid"
+                Toast.makeText(this@MainActivity, "Remote user joined: $uid", Toast.LENGTH_SHORT).show()
+            }
         }
 
         override fun onJoinChannelSuccess(channel: String, uid: Int, elapsed: Int) {
@@ -111,6 +134,8 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 infoText!!.text = "Waiting for a remote user to join"
                 joinLeaveButton?.isEnabled = true
+
+                findViewById<RelativeLayout>(R.id.groupcallinfo).visibility = View.VISIBLE
             }
         }
 
@@ -124,10 +149,21 @@ class MainActivity : AppCompatActivity() {
             // Listen for the local user leaving the channel
             runOnUiThread { infoText!!.text = "Press the button to join a channel" }
             isJoined = false
+
+            runOnUiThread(Runnable {
+
+                Toast.makeText(this@MainActivity, "Remote user left: $uid", Toast.LENGTH_SHORT).show()
+
+                findViewById<Button>(R.id.joinChannel2).isEnabled = true
+                findViewById<Button>(R.id.joinChannel3).isEnabled = true
+                findViewById<Button>(R.id.joinChannel1).isEnabled = true
+            })
+
+
         }
     }
 
-    private fun joinChannel() {
+    private fun joinChannel(token: String, channelName: String, uid: Int) {
         val options = ChannelMediaOptions()
         options.autoSubscribeAudio = true
         // Set both clients as the BROADCASTER.
@@ -137,8 +173,12 @@ class MainActivity : AppCompatActivity() {
 
         // Join the channel with a temp token.
         // You need to specify the user ID yourself, and ensure that it is unique in the channel.
-        agoraEngine!!.joinChannel(token, channelName, uid, options)
+        val res = agoraEngine!!.joinChannel(token, channelName, uid, options)
+        if (res != 0) {
+            Log.d("success", "call join success")
 
+            findViewById<RelativeLayout>(R.id.groupcallinfo).visibility = View.VISIBLE
+        }
         joinLeaveButton?.isEnabled = false
     }
 
@@ -148,17 +188,45 @@ class MainActivity : AppCompatActivity() {
             joinLeaveButton!!.text = "Join"
             joinLeaveButton?.isEnabled = true
         } else {
-            joinChannel()
+            //joinChannel()
             joinLeaveButton!!.text = "Leave"
         }
     }
 
-    fun showContacts(view: View?){
-
+    fun joinChannel1(view: View?){
+        TokenUtils.gen(this, "channel1", uid, object: TokenUtils.OnTokenGenCallback<String> {
+            override fun onTokenGen(ret: String?) {
+                joinChannel(ret!!, "channel1", uid)
+            }
+        })
+        findViewById<Button>(R.id.joinChannel2).isEnabled = false
+        findViewById<Button>(R.id.joinChannel3).isEnabled = false
+        findViewById<Button>(R.id.joinChannel1).setTextColor(Color.GREEN)
     }
 
-    fun showChannels(view: View){
+    fun joinChannel2(view: View?){
+        TokenUtils.gen(this, "channel2", uid, object: TokenUtils.OnTokenGenCallback<String> {
+            override fun onTokenGen(ret: String?) {
+                joinChannel(ret!!, "channel2", uid)
+            }
+        })
+        findViewById<Button>(R.id.joinChannel1).isEnabled = false
+        findViewById<Button>(R.id.joinChannel3).isEnabled = false
+    }
 
+    fun leaveGroupCall(view: View?){
+        agoraEngine!!.leaveChannel()
+        findViewById<RelativeLayout>(R.id.groupcallinfo).visibility = View.GONE
+    }
+
+    fun joinChannel3(view: View?){
+        TokenUtils.gen(this, "channel3", uid, object: TokenUtils.OnTokenGenCallback<String> {
+            override fun onTokenGen(ret: String?) {
+                joinChannel(ret!!, "channel3", uid)
+            }
+        })
+        findViewById<Button>(R.id.joinChannel1).isEnabled = false
+        findViewById<Button>(R.id.joinChannel2).isEnabled = false
     }
 
     private val PERMISSION_REQ_ID = 22

@@ -6,12 +6,12 @@ plugins {
 
 
 android {
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.test"
         minSdk 21
-        targetSdk 31
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -52,4 +52,7 @@ dependencies {
 //    implementation 'com.google.firebase:firebase-messaging'
 
 //    implementation 'com.google.firebase:firebase-messaging-ktx'
+
+    implementation "com.squareup.okhttp3:okhttp:4.10.0"
+    implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
 }

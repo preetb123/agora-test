@@ -26,7 +26,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent">
 
                 <TextView
                     android:id="@+id/infoText"
@@ -37,6 +37,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
                     android:layout_alignParentTop="true"
+                    android:visibility="gone"
                     android:text="Press the button to join a channel" />
 
                 <Button
@@ -47,6 +48,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:onClick="joinLeaveChannel"
+                    android:visibility="gone"
                     android:text="Join" />
 
                 <CheckBox
@@ -55,43 +57,74 @@
                     android:layout_height="wrap_content"
                     android:text="Mute"
                     android:checked="false"
+                    android:visibility="gone"
                     android:layout_below="@id/joinLeaveButton"
                     android:layout_marginTop="16dp"
                     />
 
                 <Button
-                    android:id="@+id/showContacts"
-                    android:onClick="showContacts"
+                    android:id="@+id/joinChannel1"
+                    android:onClick="joinChannel1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/muteUnmuteCheck"
-                    android:text="Show Contacts"
+                    android:text="Join Channel1"
                     />
 
                 <Button
-                    android:id="@+id/showChannels"
-                    android:onClick="showChannels"
+                    android:id="@+id/joinChannel2"
+                    android:onClick="joinChannel2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/showContacts"
-                    android:text="Show Chennels"
+                    android:layout_below="@id/joinChannel1"
+                    android:text="Join Channel2"
                     />
 
+                <Button
+                    android:id="@+id/joinChannel3"
+                    android:onClick="joinChannel3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/joinChannel2"
+                    android:text="Join Channel3"
+                    />
+
+                <RelativeLayout
+                    android:id="@+id/groupcallinfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/joinChannel3"
+                    android:visibility="gone"
+                    android:layout_margin="20dp"
+                    >
+                    <CheckBox
+                        android:id="@+id/muteUnmuteUser"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mute"
+                        android:checked="false"
+                        android:layout_marginTop="16dp"
+                        />
+
+                    <TextView
+                        android:id="@+id/users"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/muteUnmuteUser"
+                        />
+
+                    <Button
+                        android:id="@+id/leaveGroupCall"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="leaveGroupCall"
+                        android:text="Leave Call"
+                        android:layout_below="@id/users"/>
+                </RelativeLayout>
             </RelativeLayout>
         </ScrollView>
 
     </com.google.android.material.appbar.AppBarLayout>
-
-<!--    <include layout="@layout/content_main" />-->
-
-<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-<!--        android:id="@+id/fab"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_gravity="bottom|end"-->
-<!--        android:layout_marginEnd="@dimen/fab_margin"-->
-<!--        android:layout_marginBottom="16dp"-->
-<!--        app:srcCompat="@android:drawable/ic_dialog_email" />-->
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

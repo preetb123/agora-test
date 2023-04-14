@@ -9,4 +9,6 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="agora_app_id">9b82a4a719e24fe280fe652fe06f2f6b</string>
+    <string name="agora_app_certificate">ef27c305d0e5494fbdcc9349d83564a6</string>
 </resources>
