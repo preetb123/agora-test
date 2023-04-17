@@ -86,7 +86,7 @@ public class TokenUtils {
         // http://localhost:8080/rtc/testChannel/publisher/uid/1
 
         Request request = new Request.Builder()
-                .url("https://nice-animals-vanish-157-33-205-40.loca.lt/rtc/" + channelName + "/publisher/uid/"+uid)
+                .url("https://panicky-bone-production.up.railway.app/rtc/" + channelName + "/publisher/uid/"+uid)
                 .addHeader("Content-Type", "application/json")
                 .get()
                 .build();

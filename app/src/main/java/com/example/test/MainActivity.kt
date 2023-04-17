@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.test.databinding.ActivityMainBinding
@@ -23,11 +24,6 @@ class MainActivity : AppCompatActivity() {
     // Fill the App ID of your project generated on Agora Console.
     private val appId = "9b82a4a719e24fe280fe652fe06f2f6b"
 
-    // Fill the channel name.
-    private val channelName = "sony-channel1"
-
-    // Fill the temp token generated on Agora Console.
-    private val token = "007eJxTYHjfYhryMF5BPj6wtf9a6UsN3R/iUm5nJurJXNJj3hr0ukSBwTLJwijRJNHc0DLVyCQt1cjCIC3VzNQoLdXALM0ozSzp7EOLlIZARoYDS2+wMjIwMrAAMYjPBCaZwSQLmORlKM7Pq9RNzkjMy0vNMWRgAACTNCVG"
 
     // An integer that identifies the local user.
     private var uid: Int = 0;
@@ -50,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
+
         supportActionBar?.title = "Call Sample"
 
 
@@ -65,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         joinLeaveButton = findViewById(R.id.joinLeaveButton);
         infoText = findViewById(R.id.infoText);
 
-        binding.muteUnmuteCheck.setOnCheckedChangeListener { buttonView, isChecked ->
+        binding.muteUnmuteUser.setOnCheckedChangeListener { buttonView, isChecked ->
             if(isChecked) {
                 agoraEngine?.muteLocalAudioStream(true)
                 binding.muteUnmuteCheck.setText("Unmute")
@@ -116,19 +112,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    val map = LinkedHashSet<Int>()
+
+    fun updateUsers(){
+
+        var text = "Users joined"
+        map.forEach {
+            text += "\n" + it
+        }
+        runOnUiThread {
+            findViewById<TextView>(R.id.users).setText(text)
+        }
+    }
+
     private val mRtcEventHandler: IRtcEngineEventHandler = object : IRtcEngineEventHandler() {
         // Listen for the remote user joining the channel.
         override fun onUserJoined(uid: Int, elapsed: Int) {
-
+            map.add(uid);
             runOnUiThread {
                 infoText!!.text = "Remote user joined: $uid"
                 Toast.makeText(this@MainActivity, "Remote user joined: $uid", Toast.LENGTH_SHORT).show()
+                updateUsers()
             }
         }
 
         override fun onJoinChannelSuccess(channel: String, uid: Int, elapsed: Int) {
             // Successfully joined a channel
             isJoined = true
+            map.add(uid)
 
             showMessage("Joined Channel $channel")
             runOnUiThread {
@@ -136,12 +147,17 @@ class MainActivity : AppCompatActivity() {
                 joinLeaveButton?.isEnabled = true
 
                 findViewById<RelativeLayout>(R.id.groupcallinfo).visibility = View.VISIBLE
+                joinChannelButtonsEnabled(false)
+                showLeaveChannelButton(true)
+                updateUsers()
             }
         }
 
         override fun onUserOffline(uid: Int, reason: Int) {
             // Listen for remote users leaving the channel
+            map.remove(uid);
             showMessage("Remote user offline $uid $reason")
+            updateUsers()
             if (isJoined) runOnUiThread { infoText!!.text = "Waiting for a remote user to join" }
         }
 
@@ -149,18 +165,25 @@ class MainActivity : AppCompatActivity() {
             // Listen for the local user leaving the channel
             runOnUiThread { infoText!!.text = "Press the button to join a channel" }
             isJoined = false
+            map.clear()
 
             runOnUiThread(Runnable {
-
                 Toast.makeText(this@MainActivity, "Remote user left: $uid", Toast.LENGTH_SHORT).show()
-
-                findViewById<Button>(R.id.joinChannel2).isEnabled = true
-                findViewById<Button>(R.id.joinChannel3).isEnabled = true
-                findViewById<Button>(R.id.joinChannel1).isEnabled = true
+                joinChannelButtonsEnabled(true)
+                showLeaveChannelButton(false)
+                updateUsers()
             })
-
-
         }
+    }
+
+    fun joinChannelButtonsEnabled(callEnded: Boolean){
+        findViewById<Button>(R.id.joinChannel2).isEnabled = callEnded
+        findViewById<Button>(R.id.joinChannel3).isEnabled = callEnded
+        findViewById<Button>(R.id.joinChannel1).isEnabled = callEnded
+    }
+
+    fun showLeaveChannelButton(shouldShow: Boolean){
+        findViewById<LinearLayoutCompat>(R.id.layout).visibility = if(shouldShow) View.VISIBLE else View.GONE
     }
 
     private fun joinChannel(token: String, channelName: String, uid: Int) {
@@ -199,9 +222,6 @@ class MainActivity : AppCompatActivity() {
                 joinChannel(ret!!, "channel1", uid)
             }
         })
-        findViewById<Button>(R.id.joinChannel2).isEnabled = false
-        findViewById<Button>(R.id.joinChannel3).isEnabled = false
-        findViewById<Button>(R.id.joinChannel1).setTextColor(Color.GREEN)
     }
 
     fun joinChannel2(view: View?){
@@ -210,8 +230,6 @@ class MainActivity : AppCompatActivity() {
                 joinChannel(ret!!, "channel2", uid)
             }
         })
-        findViewById<Button>(R.id.joinChannel1).isEnabled = false
-        findViewById<Button>(R.id.joinChannel3).isEnabled = false
     }
 
     fun leaveGroupCall(view: View?){
@@ -225,8 +243,6 @@ class MainActivity : AppCompatActivity() {
                 joinChannel(ret!!, "channel3", uid)
             }
         })
-        findViewById<Button>(R.id.joinChannel1).isEnabled = false
-        findViewById<Button>(R.id.joinChannel2).isEnabled = false
     }
 
     private val PERMISSION_REQ_ID = 22
