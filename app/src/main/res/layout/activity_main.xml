@@ -81,6 +81,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textSize="24dp"
+                android:layout_above="@+id/connectionstate"
+                android:padding="16dp"/>
+            <TextView
+                android:id="@+id/connectionstate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14dp"
+                android:text="Testing"
                 android:layout_above="@+id/layout"
                 android:padding="16dp"/>
 

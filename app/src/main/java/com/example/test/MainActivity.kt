@@ -144,6 +144,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val TAG = "MainActivity"
+
+    fun updateConnectionState(state: String){
+        findViewById<TextView>(R.id.connectionstate).setText(state)
+    }
+
     private fun setupVoiceSDKEngine() {
         try {
             val config = RtcEngineConfig()
@@ -157,12 +162,9 @@ class MainActivity : AppCompatActivity() {
                         TAG,
                         "onConnectionStateChanged() called with: state = $state ${mapConnectionState.get(state)}, reason = $reason ${mapConnectionStateChangeRason.get(reason)}"
                     )
-
-
-
-//                    for (listener in mListenerList) {
-//                        listener.onConnectionStateChanged(state, reason)
-//                    }
+                    runOnUiThread {
+                        updateConnectionState("Connection state: " + mapConnectionState.get(state) + ", reason: " + mapConnectionStateChangeRason.get(reason) )
+                    }
                 }
 
                 override fun onMessageReceived(rtmMessage: RtmMessage, peerId: String) {
@@ -215,9 +217,9 @@ class MainActivity : AppCompatActivity() {
     val map = LinkedHashMap<Int, String>()
 
     fun updateUsers(){
-        var text = "Users joined"
+        var text = "Users joined"  + "\n"
         map.map {
-            text += "\n" + it.key + ", " + it.value
+            text += "\n" + it.key + " - " + it.value
         }
         runOnUiThread {
             findViewById<TextView>(R.id.users).setText(text)
