@@ -47,6 +47,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     implementation 'io.agora.rtc:voice-sdk:4.1.1'
+    implementation 'io.agora.rtm:rtm-sdk:1.5.0'
 //    implementation platform('com.google.firebase:firebase-bom:31.3.0')
     // Firebase Cloud Messaging (Java)
 //    implementation 'com.google.firebase:firebase-messaging'

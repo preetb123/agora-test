@@ -2,7 +2,6 @@ package com.example.test
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -17,9 +16,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.test.databinding.ActivityMainBinding
 import io.agora.rtc2.*
+import io.agora.rtm.*
 
 
 class MainActivity : AppCompatActivity() {
+
+    private var rtmChannel: RtmChannel? = null;
+    private var rtmTokenString: String? = null;
 
     // Fill the App ID of your project generated on Agora Console.
     private val appId = "9b82a4a719e24fe280fe652fe06f2f6b"
@@ -34,6 +37,7 @@ class MainActivity : AppCompatActivity() {
 
     // Agora engine instance
     private var agoraEngine: RtcEngine? = null
+    private var rtmClient: RtmClient? = null;
 
     // UI elements
     private var infoText: TextView? = null
@@ -80,13 +84,28 @@ class MainActivity : AppCompatActivity() {
         input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         builder.setView(input)
 
+        mapConnectionTypes()
+
         // Set up the buttons
         // Set up the buttons
         builder.setPositiveButton(
             "OK"
-        ) { dialog, which -> uid = Integer.parseInt(input.text.toString()) }
+        ) { dialog, which ->
+            uid = Integer.parseInt(input.text.toString())
+            if(uid == 12345){
+                rtmTokenString = "0069b82a4a719e24fe280fe652fe06f2f6bIACnppx8eqwkfPb/zEQZuGMMqc/DLuQy3glpWl8pKxRtWBw69csAAAAAEACKxXBQJ2NDZAEA6AMnY0Nk"
+            }else if(uid == 67890){
+                rtmTokenString = "0069b82a4a719e24fe280fe652fe06f2f6bIADt/hxnsxGQf11UoNWgeArEY1ySNlzUpFzJAQH6mB3SEB1zmocAAAAAEACKxXBQt2NDZAEA6AO3Y0Nk"
+            }else if(uid == 45678){
+                rtmTokenString = "0069b82a4a719e24fe280fe652fe06f2f6bIAD4WTdvs6pyGQnSblptawmT/R3t8IDPh4Rdp8EnfXdBekBglc0AAAAAEACKxXBQHmRDZAEA6AMeZENk"
+            }
+        }
 
         builder.create().show()
+    }
+
+    private fun mapConnectionTypes() {
+
     }
 
     override fun onDestroy() {
@@ -100,6 +119,31 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
+    var mapConnectionState: HashMap<Int?, String?> = object : HashMap<Int?, String?>() {
+        init {
+            put(1, "CONNECTION_STATE_DISCONNECTED")
+            put(2, "CONNECTION_STATE_CONNECTING")
+            put(3, "CONNECTION_STATE_CONNECTED")
+            put(4, "CONNECTION_STATE_RECONNECTING")
+            put(5, "CONNECTION_STATE_ABORTED")
+        }
+    }
+
+    var mapConnectionStateChangeRason: HashMap<Int?, String?> = object : HashMap<Int?, String?>() {
+        init {
+            put(1, "CONNECTION_CHANGE_REASON_LOGIN")
+            put(2, "CONNECTION_CHANGE_REASON_LOGIN_SUCCESS")
+            put(3, "CONNECTION_CHANGE_REASON_LOGIN_FAILURE")
+            put(4, "CONNECTION_CHANGE_REASON_LOGIN_TIMEOUT")
+            put(5, "CONNECTION_CHANGE_REASON_INTERRUPTED")
+            put(6, "CONNECTION_CHANGE_REASON_LOGOUT ")
+            put(7, "CONNECTION_CHANGE_REASON_BANNED_BY_SERVER")
+            put(8, "CONNECTION_CHANGE_REASON_REMOTE_LOGIN")
+            put(9, "CONNECTION_CHANGE_REASON_TOKEN_EXPIRED ")
+        }
+    }
+
+    private val TAG = "MainActivity"
     private fun setupVoiceSDKEngine() {
         try {
             val config = RtcEngineConfig()
@@ -107,18 +151,73 @@ class MainActivity : AppCompatActivity() {
             config.mAppId = appId
             config.mEventHandler = mRtcEventHandler
             agoraEngine = RtcEngine.create(config)
+            rtmClient = RtmClient.createInstance(this, appId, object : RtmClientListener {
+                override fun onConnectionStateChanged(state: Int, reason: Int) {
+                    Log.d(
+                        TAG,
+                        "onConnectionStateChanged() called with: state = $state ${mapConnectionState.get(state)}, reason = $reason ${mapConnectionStateChangeRason.get(reason)}"
+                    )
+
+
+
+//                    for (listener in mListenerList) {
+//                        listener.onConnectionStateChanged(state, reason)
+//                    }
+                }
+
+                override fun onMessageReceived(rtmMessage: RtmMessage, peerId: String) {
+                    Log.d(
+                        TAG,
+                        "onMessageReceived() called with: rtmMessage = $rtmMessage, peerId = $peerId"
+                    )
+//                    if (mListenerList.isEmpty()) {
+//                        // If currently there is no callback to handle this
+//                        // message, this message is unread yet. Here we also
+//                        // take it as an offline message.
+//                        mMessagePool.insertOfflineMessage(rtmMessage, peerId)
+//                    } else {
+//                        for (listener in mListenerList) {
+//                            listener.onMessageReceived(rtmMessage, peerId)
+//                        }
+//                    }
+                }
+
+                override fun onImageMessageReceivedFromPeer(p0: RtmImageMessage?, p1: String?) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onFileMessageReceivedFromPeer(p0: RtmFileMessage?, p1: String?) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onMediaUploadingProgress(p0: RtmMediaOperationProgress?, p1: Long) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onMediaDownloadingProgress(p0: RtmMediaOperationProgress?, p1: Long) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onTokenExpired() {}
+                override fun onTokenPrivilegeWillExpire() {}
+                override fun onPeersOnlineStatusChanged(status: Map<String, Int>) {
+                    Log.d(TAG, "onPeersOnlineStatusChanged() called with: status = $status")
+                }
+
+            })
         } catch (e: Exception) {
             throw RuntimeException("Check the error.")
         }
     }
 
-    val map = LinkedHashSet<Int>()
+
+
+    val map = LinkedHashMap<Int, String>()
 
     fun updateUsers(){
-
         var text = "Users joined"
-        map.forEach {
-            text += "\n" + it
+        map.map {
+            text += "\n" + it.key + ", " + it.value
         }
         runOnUiThread {
             findViewById<TextView>(R.id.users).setText(text)
@@ -128,7 +227,7 @@ class MainActivity : AppCompatActivity() {
     private val mRtcEventHandler: IRtcEngineEventHandler = object : IRtcEngineEventHandler() {
         // Listen for the remote user joining the channel.
         override fun onUserJoined(uid: Int, elapsed: Int) {
-            map.add(uid);
+            map.put(uid, "online");
             runOnUiThread {
                 infoText!!.text = "Remote user joined: $uid"
                 Toast.makeText(this@MainActivity, "Remote user joined: $uid", Toast.LENGTH_SHORT).show()
@@ -139,7 +238,7 @@ class MainActivity : AppCompatActivity() {
         override fun onJoinChannelSuccess(channel: String, uid: Int, elapsed: Int) {
             // Successfully joined a channel
             isJoined = true
-            map.add(uid)
+            map.put(uid, "online")
 
             showMessage("Joined Channel $channel")
             runOnUiThread {
@@ -155,7 +254,7 @@ class MainActivity : AppCompatActivity() {
 
         override fun onUserOffline(uid: Int, reason: Int) {
             // Listen for remote users leaving the channel
-            map.remove(uid);
+            map.put(uid, "offline");
             showMessage("Remote user offline $uid $reason")
             updateUsers()
             if (isJoined) runOnUiThread { infoText!!.text = "Waiting for a remote user to join" }
@@ -186,7 +285,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<LinearLayoutCompat>(R.id.layout).visibility = if(shouldShow) View.VISIBLE else View.GONE
     }
 
-    private fun joinChannel(token: String, channelName: String, uid: Int) {
+    private fun joinChannel(token: String, rtmToken: String, channelName: String, uid: Int) {
         val options = ChannelMediaOptions()
         options.autoSubscribeAudio = true
         // Set both clients as the BROADCASTER.
@@ -197,12 +296,89 @@ class MainActivity : AppCompatActivity() {
         // Join the channel with a temp token.
         // You need to specify the user ID yourself, and ensure that it is unique in the channel.
         val res = agoraEngine!!.joinChannel(token, channelName, uid, options)
-        if (res != 0) {
+        if (res == 0) {
             Log.d("success", "call join success")
+
+            rtmClient!!.login(rtmTokenString, uid.toString(), object : ResultCallback<Void?> {
+                override fun onSuccess(responseInfo: Void?) {
+                    Log.i(TAG, "login success")
+                    runOnUiThread {
+
+                    }
+                    rtmChannel  = rtmClient!!.createChannel(channelName, object : RtmChannelListener {
+                        override fun onMemberCountUpdated(i: Int) {}
+                        override fun onAttributesUpdated(list: List<RtmChannelAttribute>) {}
+                        override fun onMessageReceived(
+                            rtmMessage: RtmMessage,
+                            rtmChannelMember: RtmChannelMember
+                        ) {
+                            Log.d(
+                                TAG,
+                                "onMessageReceived() called with: rtmMessage = $rtmMessage, rtmChannelMember = $rtmChannelMember"
+                            )
+                        }
+
+                        override fun onImageMessageReceived(
+                            rtmImageMessage: RtmImageMessage,
+                            rtmChannelMember: RtmChannelMember
+                        ) {
+                        }
+
+                        override fun onFileMessageReceived(
+                            rtmFileMessage: RtmFileMessage,
+                            rtmChannelMember: RtmChannelMember
+                        ) {
+                        }
+
+                        override fun onMemberJoined(rtmChannelMember: RtmChannelMember) {
+                            Log.d(
+                                TAG,
+                                "onMemberJoined() called with: rtmChannelMember = $rtmChannelMember"
+                            )
+                            runOnUiThread {
+                                Toast.makeText(this@MainActivity, "member joined: "+ rtmChannelMember.userId, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        override fun onMemberLeft(rtmChannelMember: RtmChannelMember) {
+                            Log.d(
+                                TAG,
+                                "onMemberLeft() called with: rtmChannelMember = $rtmChannelMember"
+                            )
+                        }
+                    })
+
+                    if(rtmChannel != null){
+                        Log.d(TAG, "rtmChannel joining = $responseInfo")
+                        rtmChannel!!.join(object : ResultCallback<Void?> {
+                            override fun onSuccess(responseInfo: Void?) {
+                                println("rtm join channel success!")
+                                runOnUiThread {
+                                    Toast.makeText(this@MainActivity, "RTM Connected", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+
+                            override fun onFailure(errorInfo: ErrorInfo) {
+                                System.out.println(
+                                    "rtm join channel failure! errorCode = "
+                                            + errorInfo.errorCode
+                                )
+                            }
+                        })
+                    }
+                }
+
+                override fun onFailure(errorInfo: ErrorInfo) {
+                    Log.i(TAG, "login failed: " + errorInfo.errorCode)
+                    runOnUiThread {
+                    }
+                }
+            })
 
             findViewById<RelativeLayout>(R.id.groupcallinfo).visibility = View.VISIBLE
         }
-        joinLeaveButton?.isEnabled = false
+        runOnUiThread {
+            joinLeaveButton?.isEnabled = false
+        }
     }
 
     fun joinLeaveChannel(view: View?) {
@@ -217,32 +393,62 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun joinChannel1(view: View?){
-        TokenUtils.gen(this, "channel1", uid, object: TokenUtils.OnTokenGenCallback<String> {
-            override fun onTokenGen(ret: String?) {
-                joinChannel(ret!!, "channel1", uid)
+        joinChannel("channel1")
+    }
+
+    private fun joinChannel(channelName: String){
+        TokenUtils.gen(this, channelName, uid, object: TokenUtils.OnTokenGenCallback {
+            override fun onError(error: Exception) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "Error getting token: " + error.message, Toast.LENGTH_LONG).show()
+                }
+
+            }
+
+            override fun onTokenGen(rtcToken: String, rtmToken: String) {
+                joinChannel(rtcToken!!, rtmToken, "channel1", uid)
             }
         })
     }
 
     fun joinChannel2(view: View?){
-        TokenUtils.gen(this, "channel2", uid, object: TokenUtils.OnTokenGenCallback<String> {
-            override fun onTokenGen(ret: String?) {
-                joinChannel(ret!!, "channel2", uid)
-            }
-        })
+        joinChannel("channel2")
     }
 
     fun leaveGroupCall(view: View?){
         agoraEngine!!.leaveChannel()
+        if(rtmChannel != null){
+            rtmChannel!!.leave(object : ResultCallback<Void?> {
+                override fun onSuccess(responseInfo: Void?) {
+                    println("rtm channel left successfully")
+                    rtmChannel!!.release();
+
+                    rtmClient!!.logout(object: ResultCallback<Void?> {
+                        override fun onSuccess(p0: Void?) {
+                            TODO("Not yet implemented")
+                            rtmClient!!.release()
+                        }
+
+                        override fun onFailure(p0: ErrorInfo?) {
+                            TODO("Not yet implemented")
+                        }
+
+                    })
+                }
+
+                override fun onFailure(errorInfo: ErrorInfo) {
+                    System.out.println(
+                        "join channel failure! errorCode = "
+                                + errorInfo.errorCode
+                    )
+                }
+            })
+        }
         findViewById<RelativeLayout>(R.id.groupcallinfo).visibility = View.GONE
     }
 
     fun joinChannel3(view: View?){
-        TokenUtils.gen(this, "channel3", uid, object: TokenUtils.OnTokenGenCallback<String> {
-            override fun onTokenGen(ret: String?) {
-                joinChannel(ret!!, "channel3", uid)
-            }
-        })
+        joinChannel("channel3")
     }
 
     private val PERMISSION_REQ_ID = 22
