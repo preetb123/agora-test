@@ -93,11 +93,13 @@ class MainActivity : AppCompatActivity() {
         ) { dialog, which ->
             uid = Integer.parseInt(input.text.toString())
             if(uid == 12345){
-                rtmTokenString = "0069b82a4a719e24fe280fe652fe06f2f6bIACnppx8eqwkfPb/zEQZuGMMqc/DLuQy3glpWl8pKxRtWBw69csAAAAAEACKxXBQJ2NDZAEA6AMnY0Nk"
+                rtmTokenString = "0069b82a4a719e24fe280fe652fe06f2f6bIACJz6S5UobWPbFBYsw8qIvl8MovfJkMh0rtskozB6CewBw69csAAAAAEADW3RyCQ0xHZAEA6ANDTEdk"
             }else if(uid == 67890){
-                rtmTokenString = "0069b82a4a719e24fe280fe652fe06f2f6bIADt/hxnsxGQf11UoNWgeArEY1ySNlzUpFzJAQH6mB3SEB1zmocAAAAAEACKxXBQt2NDZAEA6AO3Y0Nk"
+                rtmTokenString = "0069b82a4a719e24fe280fe652fe06f2f6bIACgHHma4IttqfY4FBmxdLw9IWjCHBN7N0RpofsLH9XtnB1zmocAAAAAEADW3RyCM0xHZAEA6AMzTEdk"
             }else if(uid == 45678){
-                rtmTokenString = "0069b82a4a719e24fe280fe652fe06f2f6bIAD4WTdvs6pyGQnSblptawmT/R3t8IDPh4Rdp8EnfXdBekBglc0AAAAAEACKxXBQHmRDZAEA6AMeZENk"
+                rtmTokenString = "0069b82a4a719e24fe280fe652fe06f2f6bIAAJmtSCNX83e00G0JmtisYVi6FOBsJ663VhTZU3agHhoEBglc0AAAAAEADW3RyCIkxHZAEA6AMiTEdk"
+            }else if(uid == 88888){
+                rtmTokenString = "0069b82a4a719e24fe280fe652fe06f2f6bIAC4/lmAwcznPaoH1r3FUw5T2OgcDmXtV0GcN62t0CFrq1lkCXcAAAAAEADW3RyC5ktHZAEA6APmS0dk"
             }
         }
 
